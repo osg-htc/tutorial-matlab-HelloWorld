@@ -1,0 +1,13 @@
+container_image = /cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-matlab-runtime:R2018b
+
+executable =  hello_world                
+
+output = log/job.$(Process).out
+error =  log/job.$(Process).err
+log =    log/job.$(Cluster).log
+
+request_cpus = 1
+request_memory = 1 GB
+request_disk = 1 GB
+
+queue 10
