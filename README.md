@@ -7,7 +7,9 @@ ospool:
 
 ## Introduction
 
-This tutorial shows you how to create and use a compiled MATLAB applications in your jobs on the OSPool. MATLAB is a licensed software, which the OSPool cannot support; however, compiled MATLAB binaries can run on the OSPool. Use this guide to learn how to submit jobs that use MATLAB.
+This tutorial shows you how to create and use a compiled MATLAB applications in your jobs on the OSPool.
+
+MATLAB is a licensed software unavailable by the OSPool—however, compiled MATLAB binaries can run on the OSPool. Use this guide to learn how to submit jobs that use MATLAB.
 
 ## Prepare to build your MATLAB application
 
@@ -26,13 +28,13 @@ Although the compiled binaries are portable, they must a compatible, OS-specific
 
 Lets start with a simple MATLAB script `hello_world.m` that prints `Hello World!` to standard output. This will be our application that we want to compilie.
     
-    ```
-    function helloworld
-        fprintf('\n=============')
-        fprintf('\nHello, World!\n')
-        fprintf('=============\n')
-    end
-    ```  
+```
+function helloworld
+    fprintf('\n=============')
+    fprintf('\nHello, World!\n')
+    fprintf('=============\n')
+end
+```  
 
 ### Compile your application
 
@@ -40,9 +42,9 @@ Lets start with a simple MATLAB script `hello_world.m` that prints `Hello World!
 
 On a Linux server with a MATLAB license, invoke the compiler `mcc`.  Turn off all graphical options (`-nodisplay`), disable Java (`-nojvm`), and instruct MATLAB to run this application as a single-threaded application (`-singleCompThread`):
 
-    ```
-    mcc -m -R -singleCompThread -R -nodisplay -R -nojvm hello_world.m
-    ```
+```
+mcc -m -R -singleCompThread -R -nodisplay -R -nojvm hello_world.m
+```
 
 The flag `-m` means C language translation during compilation, and the flag `-R` indicates runtime options.
 
@@ -65,18 +67,18 @@ To see which releases are available on OSG visit our available [containers](http
 
 We now have the standalone binary `hello_world`. Transfer the file `hello_world` to your Access Point. Alternatively, you may also use the readily available files by using the `git clone` command: 
 
-    ```
-    $ git clone https://github.com/OSGConnect/tutorial-matlab-HelloWorld # Copies input and script files to the directory tutorial-matlab-HelloWorld.
-    ```
+```
+$ git clone https://github.com/OSGConnect/tutorial-matlab-HelloWorld # Copies input and script files to the directory tutorial-matlab-HelloWorld.
+```
  
 This will create a directory `tutorial-matlab-HelloWorld`. Inside the directory, you will see the following files
    
-    ```
-    hello_world             # compiled executable binary of hello_world.m
-    hello_world.m           # MATLAB program
-    hello_world.sub         # HTCondor submit file
-    hello_world.sh          # execution script
-    ```
+```
+hello_world             # compiled executable binary of hello_world.m
+hello_world.m           # MATLAB program
+hello_world.sub         # HTCondor submit file
+hello_world.sh          # execution script
+```
 
 ### Test the MATLAB application binary
 
@@ -84,25 +86,25 @@ The compilation and execution environment need to the same. The file `hello_worl
 
 Load the MATLAB runtime for 2018b version via apptainer/singularity command.  On the terminal prompt, type
 
-    ```
-    $ apptainer shell /cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-matlab-runtime:R2018b
-    ```
+```
+apptainer shell /cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-matlab-runtime:R2018b
+```
 
 The above command sets up the environment to run the matlab/2018b runtime applications.
 
 Now execute the binary:
 
-    ```
-    $ apptainer/singularity> ./hello_world
-    ```
+```
+$ apptainer/singularity> ./hello_world
+```
 
-    which produces the folloing output:
+which produces the folloing output:
 
-    ```
-    =============
-    Hello, World!
-    =============
-    ```
+```
+=============
+Hello, World!
+=============
+```
 
 If you get the above output, the binary execution is successful. Now, exit from the apptainer/singularity environment typing `exit`. Next, we see how to submit the job on a remote execute point using HTcondor. 
 
@@ -114,43 +116,43 @@ If you get the above output, the binary execution is successful. Now, exit from 
 
 Let us take a look at `hello_world.sub` file: 
 
-    ```
-    container_image = /cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-matlab-runtime:R2018b
-    
-    executable =  hello_world                
+```
+container_image = /cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-matlab-runtime:R2018b
 
-    output = log/job.$(Process).out
-    error =  log/job.$(Process).err
-    log =    log/job.$(Cluster).log
+executable =  hello_world                
 
-    request_cpus = 1
-    request_memory = 1 GB
-    request_disk = 1 GB
-    
-    queue 10
-    ```
+output = log/job.$(Process).out
+error =  log/job.$(Process).err
+log =    log/job.$(Cluster).log
+
+request_cpus = 1
+request_memory = 1 GB
+request_disk = 1 GB
+
+queue 10
+```
 
 Before we submit the job, make sure that the directory `log` exists on the current working directory. Because HTcondor looks for `log` directory to copy the standard output, error and log files as specified in the job description file. 
 
 From your work directory, type:
 
-    ```
-    mkdir -p log
-    ```
+```
+mkdir -p log
+```
 
 ### Submit jobs
 
 Submit your jobs using the `condor_submit` command:
 
-    ```
-	$ condor_submit hello_world.sub
-    ```
+```
+condor_submit hello_world.sub
+```
 
 This submits a list of 10 MATLAB jobs. You can check the status of your jobs with the `condor_q` command:
     
-    ```
-	$ condor_q
-    ```
+```
+condor_q
+```
 
 When your jobs are complete, each standard output file (i.e., `job.0.out`), should have the message, `Hello world` printed! We can confirm this with the command, `cat log/job.*.out`.
 
